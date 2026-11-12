@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "786455246686",
+    "firebase_url": "https://dublin8community-b106d-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "dublin8community-b106d",
+    "storage_bucket": "dublin8community-b106d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:786455246686:android:6efb00d81d3c4cfc7301cf",
+        "android_client_info": {
+          "package_name": "com.example.dublin8community"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDxNz8RAwtJJglPrO1qrqJ9abtrvnKTkFU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
