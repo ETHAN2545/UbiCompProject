@@ -2,6 +2,11 @@ package com.example.dublin8community.activities;
 
 import android.os.Bundle;
 import android.widget.TextView;
+import android.content.Intent;
+import android.widget.Button;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.example.dublin8community.MainActivity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -19,5 +24,17 @@ public class UserDashboardActivity extends AppCompatActivity {
         welcomeText = findViewById(R.id.welcomeText);
 
         welcomeText.setText("Dublin 8 Community");
+
+        Button logoutButton = findViewById(R.id.logoutButton);
+
+        logoutButton.setOnClickListener(v -> {
+
+            FirebaseAuth.getInstance().signOut();
+
+            Intent intent = new Intent(this, MainActivity.class);
+
+            startActivity(intent);
+            finish();
+        });
     }
 }

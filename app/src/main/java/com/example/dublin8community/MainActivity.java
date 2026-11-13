@@ -9,7 +9,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.dublin8community.activities.AdminDashboardActivity;
 import com.example.dublin8community.activities.RegisterActivity;
+import com.example.dublin8community.activities.UserDashboardActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
@@ -64,55 +66,68 @@ public class MainActivity extends AppCompatActivity {
 
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
 
-                    loginButton.setEnabled(true);
+            if (task.isSuccessful()) {
 
-                    if (task.isSuccessful()) {
+                String userId = mAuth.getCurrentUser().getUid();
 
-                        String userId = mAuth.getCurrentUser().getUid();
+                usersRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
 
-                        usersRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        loginButton.setEnabled(true);
 
-                            @Override
-                            public void onDataChange(DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            String role = snapshot.child("role").getValue(String.class);
 
-                                if (snapshot.exists()) {
+                            if ("admin".equals(role)) {
+                                openDashboard("admin");
 
-                                    String role = snapshot.child("role").getValue(String.class);
+                            } else if ("user".equals(role)) {
+                                openDashboard("user");
 
-                                    if (role != null) {
-                                        Toast.makeText(MainActivity.this, "Logged in successfully. Role: " + role, Toast.LENGTH_SHORT).show();
-
-                                                        // Dashboard navigation
-                                                        // will be implemented next.
-
-                                    } else {
-
-                                        mAuth.signOut();
-
-                                        Toast.makeText(MainActivity.this, "User role not found", Toast.LENGTH_SHORT).show();
-                                    }
-
-                                } else {
-
-                                    mAuth.signOut();
-
-                                    Toast.makeText(MainActivity.this, "User profile not found", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(com.google.firebase.database.DatabaseError error) {
-
+                            } else {
                                 mAuth.signOut();
 
-                                Toast.makeText(MainActivity.this, "Database error: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                                Toast.makeText(MainActivity.this, "Invalid user role", Toast.LENGTH_SHORT).show();
                             }
-                        });
 
-                    } else {
+                        } else {
+                            mAuth.signOut();
 
-                        Toast.makeText(MainActivity.this, "Login failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this, "User profile not found", Toast.LENGTH_SHORT).show();
+                        }
                     }
+
+                    @Override
+                    public void onCancelled(com.google.firebase.database.DatabaseError error) {
+                        loginButton.setEnabled(true);
+                        mAuth.signOut();
+
+                        Toast.makeText(MainActivity.this, "Database error: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
+
+            } else {
+                loginButton.setEnabled(true);
+
+                Toast.makeText(MainActivity.this, "Login failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+            }
         });
+    }
+
+    private void openDashboard(String role) {
+
+        Intent intent;
+
+        if (role.equals("admin")) {
+            intent = new Intent(MainActivity.this, AdminDashboardActivity.class);
+
+        } else {
+
+            intent = new Intent(MainActivity.this, UserDashboardActivity.class);
+        }
+
+        startActivity(intent);
+        finish();
     }
 }
