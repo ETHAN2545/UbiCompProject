@@ -37,6 +37,10 @@
             android:name=".activities.UserDashboardActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".activities.AddEventActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>
