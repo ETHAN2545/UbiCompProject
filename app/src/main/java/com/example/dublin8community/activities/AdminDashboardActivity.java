@@ -8,6 +8,7 @@ import android.widget.Button;
 import com.google.firebase.auth.FirebaseAuth;
 import com.example.dublin8community.MainActivity;
 import com.example.dublin8community.activities.AddEventActivity;
+import com.example.dublin8community.activities.ManageEventsActivity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -25,8 +26,10 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
         Button manageEventsButton = findViewById(R.id.manageEventsButton);
 
+        manageEventsButton.setText("Manage Events");
+
         manageEventsButton.setOnClickListener(v -> {
-            Intent intent = new Intent(AdminDashboardActivity.this, AddEventActivity.class);
+            Intent intent = new Intent(AdminDashboardActivity.this, ManageEventsActivity.class);
 
             startActivity(intent);
         });
