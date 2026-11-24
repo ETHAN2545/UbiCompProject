@@ -7,6 +7,7 @@ import android.widget.Button;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.example.dublin8community.MainActivity;
+import com.example.dublin8community.activities.AddEventActivity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -21,6 +22,14 @@ public class AdminDashboardActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_dashboard);
+
+        Button manageEventsButton = findViewById(R.id.manageEventsButton);
+
+        manageEventsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(AdminDashboardActivity.this, AddEventActivity.class);
+
+            startActivity(intent);
+        });
 
         welcomeText = findViewById(R.id.welcomeText);
 
