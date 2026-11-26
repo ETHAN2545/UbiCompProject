@@ -56,7 +56,7 @@ public class ManageEventsActivity extends AppCompatActivity {
 
         loadEvents();
 
-        eventsListView.setOnClickListener((parent, view, position, id) -> {
+        eventsListView.setOnItemClickListener((parent, view, position, id) -> {
 
             Event selectedEvent = eventList.get(position);
 
