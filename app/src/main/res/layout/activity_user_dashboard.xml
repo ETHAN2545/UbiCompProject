@@ -20,13 +20,13 @@
         android:id="@+id/eventsButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Browse Events" />
+        android:text="View Events" />
 
     <Button
         android:id="@+id/servicesButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Community Services" />
+        android:text="View Services" />
 
     <Button
         android:id="@+id/subscriptionsButton"

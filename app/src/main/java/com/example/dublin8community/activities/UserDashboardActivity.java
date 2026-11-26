@@ -31,7 +31,7 @@ public class UserDashboardActivity extends AppCompatActivity {
         eventsButton = findViewById(R.id.eventsButton);
         servicesButton = findViewById(R.id.servicesButton);
         eventsMapButton = findViewById(R.id.eventsMapButton);
-        servicesButton = findViewById(R.id.servicesMapButton);
+        servicesMapButton = findViewById(R.id.servicesMapButton);
         logoutButton = findViewById(R.id.logoutButton);
 
 
