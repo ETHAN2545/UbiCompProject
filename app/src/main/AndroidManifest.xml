@@ -49,6 +49,10 @@
             android:name=".activities.UserEventsActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".activities.EventDetailsActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

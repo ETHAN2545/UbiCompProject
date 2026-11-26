@@ -3,6 +3,7 @@ package com.example.dublin8community.activities;
 import android.os.Bundle;
 import android.widget.ListView;
 import android.widget.Toast;
+import android.content.Intent;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -42,6 +43,17 @@ public class UserEventsActivity extends AppCompatActivity {
         eventsListView.setAdapter(eventAdapter);
 
         loadEvents();
+
+        eventsListView.setOnItemClickListener((parent, view, position, id) -> {
+
+            Event selectedEvent = eventList.get(position);
+
+            Intent intent = new Intent(UserEventsActivity.this, EventDetailsActivity.class);
+
+            intent.putExtra("eventId", selectedEvent.eventId);
+
+            startActivity(intent);
+        });
     }
 
     private void loadEvents() {
