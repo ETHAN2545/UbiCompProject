@@ -3,11 +3,11 @@ package com.example.dublin8community.activities;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,11 +15,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.dublin8community.R;
 import com.example.dublin8community.models.Event;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 public class AddEventActivity extends AppCompatActivity {
@@ -36,10 +40,14 @@ public class AddEventActivity extends AppCompatActivity {
 
     private DatabaseReference eventsRef;
 
-    private Calendar startCalendar, endCalendar;
+    private Calendar startCalendar = Calendar.getInstance();
+    private Calendar endCalendar = Calendar.getInstance();
 
     private long startTime = 0;
     private long endTime = 0;
+
+    private String eventId;
+    private Event existingEvent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,10 +58,8 @@ public class AddEventActivity extends AppCompatActivity {
 
         eventNameInput = findViewById(R.id.eventNameInput);
         descriptionInput = findViewById(R.id.descriptionInput);
-
         locationNameInput = findViewById(R.id.locationNameInput);
         addressInput = findViewById(R.id.addressInput);
-
         latitudeInput = findViewById(R.id.latitudeInput);
         longitudeInput = findViewById(R.id.longitudeInput);
 
@@ -68,50 +74,120 @@ public class AddEventActivity extends AppCompatActivity {
 
         String[] categories = {"Music", "Sports", "Culture", "Community", "Education", "Food", "Family"};
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories);
+        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories);
 
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        categorySpinner.setAdapter(adapter);
+        categorySpinner.setAdapter(categoryAdapter);
 
-        startCalendar = Calendar.getInstance();
-        endCalendar = Calendar.getInstance();
+        eventId = getIntent().getStringExtra("eventId");
 
-        startDateButton.setOnClickListener(v -> pickDateTime(true));
-        endDateButton.setOnClickListener(v -> pickDateTime(false));
+        if (eventId != null) {
+            setTitle("Edit Event");
+            saveEventButton.setText("Update Event");
+            loadEvent();
+        } else {
+            setTitle("Add Event");
+        }
+
+        startDateButton.setOnClickListener(v -> selectDateTime(true));
+        endDateButton.setOnClickListener(v -> selectDateTime(false));
 
         saveEventButton.setOnClickListener(v -> saveEvent());
     }
 
-    private void pickDateTime(boolean isStart) {
+    private void loadEvent() {
 
-        Calendar calendar = isStart ? startCalendar : endCalendar;
+        eventsRef.child(eventId).addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+
+                if (!snapshot.exists()) {
+                    Toast.makeText(AddEventActivity.this, "Event not found", Toast.LENGTH_SHORT).show();
+
+                    finish();
+
+                    return;
+                }
+
+                existingEvent = snapshot.getValue(Event.class);
+
+                if (existingEvent == null) {
+                    Toast.makeText(AddEventActivity.this, "Could not load event", Toast.LENGTH_SHORT).show();
+
+                    finish();
+
+                    return;
+                }
+
+                eventNameInput.setText(existingEvent.eventName);
+                descriptionInput.setText(existingEvent.description);
+                locationNameInput.setText(existingEvent.locationName);
+                addressInput.setText(existingEvent.address);
+                latitudeInput.setText(String.valueOf(existingEvent.latitude));
+                longitudeInput.setText(String.valueOf(existingEvent.longitude));
+
+                for (int i = 0; i < categorySpinner.getCount(); i++) {
+                    if (categorySpinner.getItemAtPosition(i).toString().equals(existingEvent.category)) {
+
+                        categorySpinner.setSelection(i);
+
+                        break;
+                    }
+                }
+
+                startTime = existingEvent.startTime;
+                endTime = existingEvent.endTime;
+
+                startCalendar.setTimeInMillis(startTime);
+                endCalendar.setTimeInMillis(endTime);
+
+                updateDateText(startDateText, startTime);
+                updateDateText(endDateText, endTime);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+
+                Toast.makeText(AddEventActivity.this, "Error loading event: " + error.getMessage(), Toast.LENGTH_LONG).show();
+
+                finish();
+            }
+        });
+    }
+
+    private void selectDateTime(boolean isStartDate) {
+
+        Calendar calendar = isStartDate ? startCalendar : endCalendar;
 
         DatePickerDialog datePicker = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
 
-                    calendar.set(Calendar.YEAR, year);
-                    calendar.set(Calendar.MONTH, month);
-                    calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+            calendar.set(Calendar.YEAR, year);
+            calendar.set(Calendar.MONTH, month);
+            calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 
-                    TimePickerDialog timePicker = new TimePickerDialog(
-                            this,
-                            (timeView, hourOfDay, minute) -> {
+            TimePickerDialog timePicker = new TimePickerDialog(this, (timeView, hourOfDay, minute) -> {
 
-                                calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                                calendar.set(Calendar.MINUTE, minute);
-                                calendar.set(Calendar.SECOND, 0);
-                                calendar.set(Calendar.MILLISECOND, 0);
+                calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                calendar.set(Calendar.MINUTE, minute);
+                calendar.set(Calendar.SECOND, 0);
+                calendar.set(Calendar.MILLISECOND, 0);
 
-                                updateSelectedDate(isStart);
+                if (isStartDate) {
+                    startTime = calendar.getTimeInMillis();
+                    updateDateText(startDateText, startTime);
 
-                            },
-                            calendar.get(Calendar.HOUR_OF_DAY),
-                            calendar.get(Calendar.MINUTE),
-                            true
-                    );
-
-                    timePicker.show();
+                } else {
+                    endTime = calendar.getTimeInMillis();
+                    updateDateText(endDateText, endTime);
+                }
                 },
+                    calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true);
+
+            timePicker.show();
+
+            },
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)
@@ -120,31 +196,17 @@ public class AddEventActivity extends AppCompatActivity {
         datePicker.show();
     }
 
-    private void updateSelectedDate(boolean isStart) {
-
-        Calendar calendar = isStart ? startCalendar : endCalendar;
+    private void updateDateText(TextView textView, long timestamp) {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
 
-        String formattedDate = dateFormat.format(calendar.getTime());
-
-        if (isStart) {
-
-            startTime = calendar.getTimeInMillis();
-            startDateText.setText(formattedDate);
-
-        } else {
-
-            endTime = calendar.getTimeInMillis();
-            endDateText.setText(formattedDate);
-        }
+        textView.setText(dateFormat.format(new Date(timestamp)));
     }
 
     private void saveEvent() {
 
         String eventName = eventNameInput.getText().toString().trim();
         String description = descriptionInput.getText().toString().trim();
-
         String locationName = locationNameInput.getText().toString().trim();
         String address = addressInput.getText().toString().trim();
 
@@ -156,21 +218,16 @@ public class AddEventActivity extends AppCompatActivity {
         if (eventName.isEmpty() || description.isEmpty() || locationName.isEmpty() || address.isEmpty() || latitudeString.isEmpty() || longitudeString.isEmpty()) {
 
             Toast.makeText(this, "Please complete all fields", Toast.LENGTH_SHORT).show();
-
             return;
         }
 
         if (startTime == 0 || endTime == 0) {
-
-            Toast.makeText(this, "Please select the event start and end times", Toast.LENGTH_SHORT).show();
-
+            Toast.makeText(this, "Please select the event dates", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (endTime <= startTime) {
-
-            Toast.makeText(this, "The end time must be after the start time", Toast.LENGTH_SHORT).show();
-
+            Toast.makeText(this, "End time must be after start time", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -178,67 +235,76 @@ public class AddEventActivity extends AppCompatActivity {
         double longitude;
 
         try {
-
             latitude = Double.parseDouble(latitudeString);
             longitude = Double.parseDouble(longitudeString);
-
-            if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
-
-                Toast.makeText(this, "Please enter valid coordinates", Toast.LENGTH_SHORT).show();
-
-                return;
-            }
-
         } catch (NumberFormatException e) {
-
-            Toast.makeText(this, "Latitude and longitude must be numbers", Toast.LENGTH_SHORT).show();
-
+            Toast.makeText(this, "Enter valid coordinates", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
 
-        String eventId = eventsRef.push().getKey();
+            Toast.makeText(this, "Invalid latitude or longitude", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         if (eventId == null) {
-            Toast.makeText(this, "Could not generate event ID", Toast.LENGTH_SHORT).show();
-            return;
+
+            String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+            eventId = eventsRef.push().getKey();
+
+            Event event = new Event(
+                    eventId,
+                    eventName,
+                    description,
+                    category,
+                    locationName,
+                    address,
+                    latitude,
+                    longitude,
+                    startTime,
+                    endTime,
+                    "",
+                    currentUserId,
+                    System.currentTimeMillis()
+            );
+
+            saveToDatabase(event);
+
+        } else {
+
+            Event updatedEvent = new Event(
+                    eventId,
+                    eventName,
+                    description,
+                    category,
+                    locationName,
+                    address,
+                    latitude,
+                    longitude,
+                    startTime,
+                    endTime,
+                    existingEvent.imageUrl,
+                    existingEvent.createdBy,
+                    existingEvent.createdAt
+            );
+
+            saveToDatabase(updatedEvent);
         }
+    }
 
-        Event event = new Event(
-                eventId,
-                eventName,
-                description,
-                category,
-                locationName,
-                address,
-                latitude,
-                longitude,
-                startTime,
-                endTime,
-                "",
-                userId,
-                System.currentTimeMillis()
-        );
+    private void saveToDatabase(Event event) {
 
-        saveEventButton.setEnabled(false);
+        eventsRef.child(eventId).setValue(event).addOnSuccessListener(unused -> {
 
-        eventsRef.child(eventId).setValue(event).addOnCompleteListener(task -> {
+            Toast.makeText(AddEventActivity.this, eventId != null ? "Event saved successfully" : "Event saved", Toast.LENGTH_SHORT).show();
 
-                    saveEventButton.setEnabled(true);
+            finish();
+        })
+                .addOnFailureListener(e -> {
 
-                    if (task.isSuccessful()) {
-
-                        Toast.makeText(this, "Event created successfully", Toast.LENGTH_SHORT).show();
-
-                        finish();
-
-                    } else {
-
-                        String errorMessage = task.getException() != null ? task.getException().getMessage() : "Unknown error";
-
-                        Toast.makeText(this, "Failed to save event: " + errorMessage, Toast.LENGTH_LONG).show();
-                    }
+                    Toast.makeText(AddEventActivity.this, "Error saving event: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
 }
