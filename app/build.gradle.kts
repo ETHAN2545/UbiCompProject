@@ -1,7 +1,20 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
 
     id("com.google.gms.google-services")
+}
+
+val localProperties = Properties()
+
+val localPropertiesFile = rootProject.file("local.properties")
+
+if (localPropertiesFile.exists()) {
+    FileInputStream(localPropertiesFile).use { input ->
+        localProperties.load(input)
+    }
 }
 
 android {
@@ -20,7 +33,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         manifestPlaceholders["MAPS_API_KEY"] =
-            project.findProperty("MAPS_API_KEY") as String? ?: ""
+            localProperties.getProperty("MAPS_API_KEY", "")
     }
 
     buildTypes {
