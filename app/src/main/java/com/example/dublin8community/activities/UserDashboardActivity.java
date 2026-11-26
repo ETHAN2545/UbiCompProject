@@ -17,6 +17,7 @@ public class UserDashboardActivity extends AppCompatActivity {
 
     private TextView welcomeText;
     private Button eventsButton;
+    private Button servicesButton;
     private Button logoutButton;
 
     @Override
@@ -27,12 +28,20 @@ public class UserDashboardActivity extends AppCompatActivity {
         welcomeText = findViewById(R.id.welcomeText);
         eventsButton = findViewById(R.id.eventsButton);
         logoutButton = findViewById(R.id.logoutButton);
+        servicesButton = findViewById(R.id.servicesButton);
 
         welcomeText.setText("Dublin 8 Community");
 
         eventsButton.setOnClickListener(v -> {
 
             Intent intent = new Intent(UserDashboardActivity.this, UserEventsActivity.class);
+
+            startActivity(intent);
+        });
+
+        servicesButton.setOnClickListener(v -> {
+
+            Intent intent = new Intent(UserDashboardActivity.this, UserServicesActivity.class);
 
             startActivity(intent);
         });

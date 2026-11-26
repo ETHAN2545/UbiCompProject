@@ -61,6 +61,14 @@
             android:name=".activities.ManageServicesActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".activities.UserServicesActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activities.ServiceDetailsActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>
