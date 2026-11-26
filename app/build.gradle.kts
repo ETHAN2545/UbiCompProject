@@ -18,6 +18,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        manifestPlaceholders["MAPS_API_KEY"] =
+            project.findProperty("MAPS_API_KEY") as String? ?: ""
     }
 
     buildTypes {
@@ -42,6 +45,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:35.1.0"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-database")
+    implementation("com.google.android.gms:play-services-maps:20.0.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)
