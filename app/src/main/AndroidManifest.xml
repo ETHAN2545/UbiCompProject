@@ -57,6 +57,10 @@
             android:name=".activities.AddServiceActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".activities.ManageServicesActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>
