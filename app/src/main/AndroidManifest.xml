@@ -77,6 +77,10 @@
             android:name=".activities.EventsMapActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".activities.ServicesMapActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

@@ -47,6 +47,12 @@
         android:text="View Events Map" />
 
     <Button
+        android:id="@+id/servicesMapButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="View Services Map" />
+
+    <Button
         android:id="@+id/logoutButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

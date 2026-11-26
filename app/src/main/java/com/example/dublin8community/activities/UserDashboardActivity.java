@@ -19,6 +19,7 @@ public class UserDashboardActivity extends AppCompatActivity {
     private Button eventsButton;
     private Button servicesButton;
     private Button eventsMapButton;
+    private Button servicesMapButton;
     private Button logoutButton;
 
     @Override
@@ -30,6 +31,7 @@ public class UserDashboardActivity extends AppCompatActivity {
         eventsButton = findViewById(R.id.eventsButton);
         servicesButton = findViewById(R.id.servicesButton);
         eventsMapButton = findViewById(R.id.eventsMapButton);
+        servicesButton = findViewById(R.id.servicesMapButton);
         logoutButton = findViewById(R.id.logoutButton);
 
 
@@ -52,6 +54,13 @@ public class UserDashboardActivity extends AppCompatActivity {
         eventsMapButton.setOnClickListener(v -> {
 
             Intent intent = new Intent(UserDashboardActivity.this, EventsMapActivity.class);
+
+            startActivity(intent);
+        });
+
+        servicesMapButton.setOnClickListener(v -> {
+
+            Intent intent = new Intent(UserDashboardActivity.this, ServicesMapActivity.class);
 
             startActivity(intent);
         });
